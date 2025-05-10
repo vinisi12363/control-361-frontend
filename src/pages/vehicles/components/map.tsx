@@ -104,7 +104,6 @@ interface VehicleIcon {
   svgBase64: string;
 }
 interface MapsProps {
-  afterMount: (mounted: boolean) => void;
   locatedVehicles: LocationVehicles[];
 }
 const colors = [
@@ -140,7 +139,7 @@ const colors = [
   "#1DE9B6",
 ];
 
-const VehicleMap: React.FC<MapsProps> = ({ locatedVehicles, afterMount }) => {
+const VehicleMap: React.FC<MapsProps> = ({ locatedVehicles }) => {
   const { isLoaded } = useJsApiLoader({
     googleMapsApiKey: `${env.VITE_GOOGLE_API_KEY}`,
   });
@@ -169,7 +168,6 @@ const VehicleMap: React.FC<MapsProps> = ({ locatedVehicles, afterMount }) => {
         };
       });
       setVehicleIcons(icons);
-      afterMount(true);
     }
   }, [isLoaded, locatedVehicles]);
 
