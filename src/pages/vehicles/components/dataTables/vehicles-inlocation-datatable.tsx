@@ -32,17 +32,14 @@ import type { LocationVehicles } from "../../../../types/types";
 import { useInView } from "react-intersection-observer";
 import { useLocationVehiclesStore } from "../../../../store/useLocationVehiclesStore";
 import { useLocationVehiclesMutation } from "../../../../hooks/useLocationVehiclesMutation";
+import { ScrollArea } from "@radix-ui/react-scroll-area";
+import { ScrollBar } from "../../../../components/ui/scroll-area";
 
 export function VehiclesinLocationLDataTables() {
   const { data, lastResponseCount, perPage, appendData } = useLocationVehiclesStore();
   const mutation = useLocationVehiclesMutation();
-    console.log("elementos atualizando")
-  console.log({
-    data,
-    lastResponseCount,
-    perPage
-  })
-  const [ref, inView] = useInView({threshold: 0.8 });
+
+  const [ref, inView] = useInView({threshold: 0.7 });
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
@@ -138,22 +135,6 @@ export function VehiclesinLocationLDataTables() {
     },
   });
 
-  // useEffect(() => {
-  //   if (inView && lastResponseCount === data.length && !mutation.isPending && canLoad) {
-  //     setCanLoad(false); // Bloqueia carregamentos sucessivos
-  //     mutation.mutate({
-  //       page: 1,
-  //       perPage: Math.floor(data.length / 10) + 1,
-  //     });
-
-  //     // Define um delay para reativar o carregamento
-  //     const timeout = setTimeout(() => {
-  //       setCanLoad(true);
-  //     }, 1000); // 1000ms = 1 segundo de delay
-
-  //     return () => clearTimeout(timeout);
-  //   }
-  // }, [inView, lastResponseCount, mutation.isPending, data.length, canLoad]);
 useEffect(() => {
   if (inView && !mutation.isPending) {
     const timer = setTimeout(() => {
@@ -182,108 +163,110 @@ useEffect(() => {
   };
 
   return (
-    <div className="w-full">
-      <div className="flex items-center py-4">
-        <Input
-          placeholder="Filtrar por placa ou Frota"
-          value={(table.getColumn("plate")?.getFilterValue() as string) ?? ""}
-          onChange={(event) =>
-            table.getColumn("plate")?.setFilterValue(event.target.value)
-          }
-          className="max-w-sm"
-        />
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="outline" className="ml-auto">
-              Selecionar Campos <ChevronDown />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            {table
-              .getAllColumns()
-              .filter((column) => column.getCanHide())
-              .map((column) => {
-                return (
-                  <DropdownMenuCheckboxItem
-                    key={column.id}
-                    className="capitalize"
-                    checked={column.getIsVisible()}
-                    onCheckedChange={(value) =>
-                      column.toggleVisibility(!!value)
-                    }
-                  >
-                    {getColumnLabel(column.id)}
-                  </DropdownMenuCheckboxItem>
-                );
-              })}
-          </DropdownMenuContent>
-        </DropdownMenu>
-      </div>
-      <div className="rounded-md border max-h-[600px] overflow-y-scroll">
-        <Table>
-          <TableHeader>
-            {table.getHeaderGroups().map((headerGroup) => (
-              <TableRow key={headerGroup.id}>
-                {headerGroup.headers.map((header) => {
+  
+      <div className="w-full">
+        <div className="flex items-center py-4">
+          <Input
+            placeholder="Filtrar por placa ou Frota"
+            value={(table.getColumn("plate")?.getFilterValue() as string) ?? ""}
+            onChange={(event) =>
+              table.getColumn("plate")?.setFilterValue(event.target.value)
+            }
+            className="max-w-sm"
+          />
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" className="ml-auto">
+                Selecionar Campos <ChevronDown />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              {table
+                .getAllColumns()
+                .filter((column) => column.getCanHide())
+                .map((column) => {
                   return (
-                    <TableHead key={header.id}>
-                      {header.isPlaceholder
-                        ? null
-                        : flexRender(
-                            header.column.columnDef.header,
-                            header.getContext()
-                          )}
-                    </TableHead>
+                    <DropdownMenuCheckboxItem
+                      key={column.id}
+                      className="capitalize"
+                      checked={column.getIsVisible()}
+                      onCheckedChange={(value) =>
+                        column.toggleVisibility(!!value)
+                      }
+                    >
+                      {getColumnLabel(column.id)}
+                    </DropdownMenuCheckboxItem>
                   );
                 })}
-              </TableRow>
-            ))}
-          </TableHeader>
-          <TableBody>
-            {table.getRowModel().rows?.length ? (
-              <>
-                {table.getRowModel().rows.map((row) => (
-                  <TableRow key={row.id} data-state={row.getIsSelected() && "selected"}>
-                    {row.getVisibleCells().map((cell) => (
-                      <TableCell key={cell.id}>
-                        {flexRender(cell.column.columnDef.cell, cell.getContext())}
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
+        <div className="rounded-md border max-h-[600px]">
+          <Table>
+            <TableHeader>
+              {table.getHeaderGroups().map((headerGroup) => (
+                <TableRow key={headerGroup.id}>
+                  {headerGroup.headers.map((header) => {
+                    return (
+                      <TableHead key={header.id}>
+                        {header.isPlaceholder
+                          ? null
+                          : flexRender(
+                              header.column.columnDef.header,
+                              header.getContext()
+                            )}
+                      </TableHead>
+                    );
+                  })}
+                </TableRow>
+              ))}
+            </TableHeader>
+            <TableBody>
+              {table.getRowModel().rows?.length ? (
+                <>
+                  {table.getRowModel().rows.map((row) => (
+                    <TableRow key={row.id} data-state={row.getIsSelected() && "selected"}>
+                      {row.getVisibleCells().map((cell) => (
+                        <TableCell key={cell.id}>
+                          {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                        </TableCell>
+                      ))}
+                    </TableRow>
+                  ))}
+                { (
+                    <TableRow ref={ref}>
+                      <TableCell colSpan={columns.length} className="text-center py-4">
+                        {mutation.isPending ? (
+                          <div className="inline-flex items-center">
+                            <Loader2 className="animate-spin h-4 w-4 mr-2" />
+                            Carregando lista...
+                          </div>
+                        ) : (
+                          "Role para carregar mais"
+                        )}
                       </TableCell>
-                    ))}
-                  </TableRow>
-                ))}
-               { (
-                  <TableRow ref={ref}>
-                    <TableCell colSpan={columns.length} className="text-center py-4">
-                      {mutation.isPending ? (
-                        <div className="inline-flex items-center">
-                          <Loader2 className="animate-spin h-4 w-4 mr-2" />
-                          Carregando lista...
-                        </div>
-                      ) : (
-                        "Role para carregar mais"
-                      )}
-                    </TableCell>
-                  </TableRow>
-                )}
-              </>
-            ) : (
-             <TableRow>
-                <TableCell colSpan={columns.length} className="h-24 text-center">
-                  {mutation.isPending ? (
-                    <Loader2 className="animate-spin h-6 w-6 mx-auto" />
-                  ) : (
-                   <div className="inline-flex items-center">
-                          <Loader2 className="animate-spin h-4 w-4 mr-2" />
-                          Carregando lista...
-                        </div>
-                     
+                    </TableRow>
                   )}
-                </TableCell>
-              </TableRow>
-            )}
-          </TableBody>
-        </Table>
+                </>
+              ) : (
+              <TableRow>
+                  <TableCell colSpan={columns.length} className="h-24 text-center">
+                    {mutation.isPending ? (
+                      <Loader2 className="animate-spin h-6 w-6 mx-auto" />
+                    ) : (
+                    <div className="inline-flex items-center">
+                            <Loader2 className="animate-spin h-4 w-4 mr-2" />
+                            Carregando lista...
+                          </div>
+                      
+                    )}
+                  </TableCell>
+                </TableRow>
+              )}
+            </TableBody>
+          </Table>
+        </div>
       </div>
-    </div>
+  
   );
 }

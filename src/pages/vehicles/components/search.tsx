@@ -31,11 +31,11 @@ export default function SearchList({ filter, onSearch, onFilterChange }: SearchL
       onFilterChange(value)
     }
   }
-
+  
   return (
     <div className="flex w-full justify-between items-center p-4 border-b-2 border-zinc-800 rounded-md">
       <div className="flex flex-row gap-3">
-        <h2 className="font-semibold mb-2">Lista</h2>
+        <h2 className="font-semibold mb-2">Listar por:</h2>
         <RadioGroup.Root
           className="flex items-center gap-4"
           value={filter}

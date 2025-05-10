@@ -11,17 +11,19 @@ import VehicleMap from "./components/map";
 import { useDebounce } from "use-debounce";
 import { useDebounceCallback } from "usehooks-ts";
 import { useLocationVehiclesStore } from "../../store/useLocationVehiclesStore";
-import { useLocationVehiclesMutation } from "../../hooks/useLocationVehiclesMutation";
+import { toast } from "sonner";
+import { useVehiclesStore } from "../../store/useVehiclesStore";
 
 export default function Page() {
   const [filterValue, setFilterValue] = useState<"rastreados" | "outros">(
     "rastreados"
   );
   const [searchTerm, setSearchTerm] = useState("");
- // const [debouncedSearchTerm] = useDebounce(searchTerm, 300); //TODO  usar isso aqui para gerenciar as placas e  frotas
-  const { data, perPage,  hydrate, lastResponseCount, } =
+  // const [debouncedSearchTerm] = useDebounce(searchTerm, 300); //TODO  usar isso aqui para gerenciar as placas e  frotas
+  const { data, perPage, hydrate } =
     useLocationVehiclesStore();
-
+  const {data: vehicleData , hydrate: hydrateVehicle} =
+    useVehiclesStore();
   const { data: vehiclesResponse, isFetching } = useQuery({
     queryKey: ["vehicles", perPage],
     queryFn: async () => {
@@ -37,14 +39,17 @@ export default function Page() {
   });
   useEffect(() => {
     if (vehiclesResponse) {
-        console.log('entrou aqui uma vez')
       hydrate(
         vehiclesResponse?.content.locationVehicles,
         vehiclesResponse?.content.locationVehicles.length
       );
+      hydrateVehicle(
+          vehiclesResponse?.content.vehicles,
+          vehiclesResponse?.content.vehicles.length
+      )
     }
   }, [vehiclesResponse, isFetching]);
-  
+
   return (
     <AnimatePresence mode="popLayout">
       <div className="flex flex-col items-center gap-4">
@@ -53,6 +58,8 @@ export default function Page() {
           <Searchlist
             filter={filterValue}
             onFilterChange={(value: string) => {
+              if (value === "outros")
+                toast.info("O Mapa mostra somente Veículos rastreados.");
               if (value === "rastreados" || value === "outros") {
                 setFilterValue(value);
               }
@@ -69,15 +76,20 @@ export default function Page() {
             className="w-full"
           >
             {filterValue === "outros" ? (
-              <VehiclesOthersLDataTables
-                vehicles={vehiclesResponse?.content.vehicles || []}
-              />
+              <>
+                <div className="bg-zinc-400/40 w-full h-[400px] space-y-1 p-4 rounded-lg">
+                  <VehicleMap />
+                </div>
+
+                <VehiclesOthersLDataTables
+                />
+              </>
             ) : (
               <div>
                 {data && (
                   <>
                     <div className="bg-zinc-400/40 w-full h-[400px] space-y-1 p-4 rounded-lg">
-                      <VehicleMap/>
+                      <VehicleMap />
                     </div>
                     <VehiclesinLocationLDataTables />
                   </>

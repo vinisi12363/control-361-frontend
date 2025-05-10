@@ -8,7 +8,7 @@ export const useVehiclesMutation = () => {
   const initialPerpageValue = 5 //valor inicial da perPage. 
   
   return useMutation({
-    mutationFn: async (params: { type:"others"; page: number; perPage: number }) => {
+    mutationFn: async (params: { page:number; perPage: number }) => {
       const response = await api.get('/vehicles', { params });
       return response.data.data as VehiclesResponse;
     },
