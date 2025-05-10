@@ -90,6 +90,9 @@ import type { LocationVehicles } from "../../../types/types";
 import { env } from "../../../lib/env";
 import ReactDOMServer from "react-dom/server";
 import IconMaker from "../../../components/IconMaker";
+import { useLocationVehiclesStore } from "../../../store/useLocationVehiclesStore";
+import { CAR_ICON_COLORS } from "../../../lib/constants";
+import { Loader2 } from "lucide-react";
 
 const containerStyle = {
   width: "100%",
@@ -103,46 +106,14 @@ const center = {
 interface VehicleIcon {
   svgBase64: string;
 }
-interface MapsProps {
-  locatedVehicles: LocationVehicles[];
-}
-const colors = [
-  "#FF5733",
-  "#33FF57",
-  "#3357FF",
-  "#F39C12",
-  "#8E44AD",
-  "#E91E63",
-  "#00BCD4",
-  "#FFC107",
-  "#4CAF50",
-  "#FF9800",
-  "#9C27B0",
-  "#03A9F4",
-  "#CDDC39",
-  "#673AB7",
-  "#FFEB3B",
-  "#009688",
-  "#FF5722",
-  "#C2185B",
-  "#3F51B5",
-  "#00E676",
-  "#D32F2F",
-  "#1976D2",
-  "#C51162",
-  "#43A047",
-  "#7C4DFF",
-  "#F44336",
-  "#0097A7",
-  "#AEEA00",
-  "#FF6F00",
-  "#1DE9B6",
-];
 
-const VehicleMap: React.FC<MapsProps> = ({ locatedVehicles }) => {
+export default function VehicleMap () {
   const { isLoaded } = useJsApiLoader({
     googleMapsApiKey: `${env.VITE_GOOGLE_API_KEY}`,
   });
+  const {data:locatedVehicles} = useLocationVehiclesStore();
+  console.log('dentro do map')
+  console.log(locatedVehicles)
   const [vehicleIcons, setVehicleIcons] = useState<VehicleIcon[]>([]);
   const [selectedVehicle, setSelectedVehicle] =
     useState<LocationVehicles | null>(null);
@@ -157,7 +128,7 @@ const VehicleMap: React.FC<MapsProps> = ({ locatedVehicles }) => {
       const icons = locatedVehicles.map((vehicle, index) => {
         const svgCar = ReactDOMServer.renderToStaticMarkup(
           <IconMaker
-            fillColor={colors[index % colors.length]}
+            fillColor={CAR_ICON_COLORS[index % CAR_ICON_COLORS.length]}
             icon="/icons/car.svg"
           />
         );
@@ -171,14 +142,23 @@ const VehicleMap: React.FC<MapsProps> = ({ locatedVehicles }) => {
     }
   }, [isLoaded, locatedVehicles]);
 
-  if (!isLoaded || vehicleIcons.length === 0)
-    return <div>Carregando mapa...</div>;
-  console.log(vehicleIcons);
+  if (!isLoaded || vehicleIcons.length === 0){
+          return(
+                     <div className="flex  w-full h-full items-center justify-center">
+                          <Loader2 className="animate-spin h-4 w-4 mr-2" />
+                          <p>Carregando Mapa...</p>
+                        </div>
+        ) 
+   
+                     
+  }
+  
+ 
   return (
     <GoogleMap
       mapContainerStyle={containerStyle}
       center={center}
-      zoom={30}
+      zoom={5}
       onLoad={onLoad}
     >
       {locatedVehicles.map((vehicle, index) => (
@@ -217,4 +197,3 @@ const VehicleMap: React.FC<MapsProps> = ({ locatedVehicles }) => {
   );
 };
 
-export default VehicleMap;

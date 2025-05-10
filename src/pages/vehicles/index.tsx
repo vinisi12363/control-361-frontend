@@ -3,26 +3,25 @@ import Searchlist from "./components/search";
 import { VehiclesinLocationLDataTables } from "./components/dataTables/vehicles-inlocation-datatable";
 import { useQuery } from "@tanstack/react-query";
 import { api } from "../../lib/api/api";
-import type { LocationVehicles, VehiclesResponse } from "../../types/types";
+import type { VehiclesResponse } from "../../types/types";
 import { useEffect, useState } from "react";
 import { VehiclesOthersLDataTables } from "./components/dataTables/vehicle-others-datatable";
 import { AnimatePresence, motion } from "framer-motion";
 import VehicleMap from "./components/map";
 import { useDebounce } from "use-debounce";
 import { useDebounceCallback } from "usehooks-ts";
+import { useLocationVehiclesStore } from "../../store/useLocationVehiclesStore";
+import { useLocationVehiclesMutation } from "../../hooks/useLocationVehiclesMutation";
 
 export default function Page() {
   const [filterValue, setFilterValue] = useState<"rastreados" | "outros">(
     "rastreados"
   );
   const [searchTerm, setSearchTerm] = useState("");
-  const [debouncedSearchTerm] = useDebounce(searchTerm, 300); //TODO  usar isso aqui para gerenciar as placas e  frotas
-  const [perPage, setPerPage] = useState(4);
-  const [hasMore, setHasMore] = useState(true);
-  const [page, setPage] = useState(1)
-  const [allLocatedVehicles, setAllLocatedVehicles] = useState<
-    LocationVehicles[]
-  >([]);
+ // const [debouncedSearchTerm] = useDebounce(searchTerm, 300); //TODO  usar isso aqui para gerenciar as placas e  frotas
+  const { data, perPage,  hydrate, lastResponseCount, } =
+    useLocationVehiclesStore();
+
   const { data: vehiclesResponse, isFetching } = useQuery({
     queryKey: ["vehicles", perPage],
     queryFn: async () => {
@@ -36,18 +35,16 @@ export default function Page() {
       return response.data.data as VehiclesResponse;
     },
   });
-  console.log("veiculos", isFetching, vehiclesResponse)
-//   useEffect(() => {
-//     if (!isFetching) {
-//       setAllLocatedVehicles(vehiclesResponse?.content?.locationVehicles);
-//     }
-//   }, [vehiclesResponse, isFetching]);
-
-  const handleLoadMore = useDebounceCallback(() => {
-    setPerPage((prev) => prev + 2);
-    setPage((prev)=>prev+1)
-  }, 5000);
-
+  useEffect(() => {
+    if (vehiclesResponse) {
+        console.log('entrou aqui uma vez')
+      hydrate(
+        vehiclesResponse?.content.locationVehicles,
+        vehiclesResponse?.content.locationVehicles.length
+      );
+    }
+  }, [vehiclesResponse, isFetching]);
+  
   return (
     <AnimatePresence mode="popLayout">
       <div className="flex flex-col items-center gap-4">
@@ -77,22 +74,14 @@ export default function Page() {
               />
             ) : (
               <div>
-                {
-                    vehiclesResponse && (<>
-                     <div className="bg-zinc-800/40 w-full h-[400px] space-y-1 p-4 rounded-lg">
-                  <VehicleMap
-                    locatedVehicles={
-                      vehiclesResponse?.content.locationVehicles || []
-                    }
-                  />
-                </div>
-                <VehiclesinLocationLDataTables
-                  locatedVehicles={ vehiclesResponse?.content.locationVehicles || []}
-                  onLoadMore={handleLoadMore}
-                  hasMore={hasMore}
-                /></>)
-                }
-               
+                {data && (
+                  <>
+                    <div className="bg-zinc-400/40 w-full h-[400px] space-y-1 p-4 rounded-lg">
+                      <VehicleMap/>
+                    </div>
+                    <VehiclesinLocationLDataTables />
+                  </>
+                )}
               </div>
             )}
           </motion.div>

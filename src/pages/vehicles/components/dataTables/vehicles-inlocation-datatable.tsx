@@ -30,32 +30,23 @@ import {
 } from "../../../../components/ui/table";
 import type { LocationVehicles } from "../../../../types/types";
 import { useInView } from "react-intersection-observer";
+import { useLocationVehiclesStore } from "../../../../store/useLocationVehiclesStore";
+import { useLocationVehiclesMutation } from "../../../../hooks/useLocationVehiclesMutation";
 
-interface locationVehiclesProps {
-  locatedVehicles: LocationVehicles[];
-  onLoadMore?: () => void;
-  hasMore?: boolean;
-}
-export function VehiclesinLocationLDataTables({
-  locatedVehicles,
-  onLoadMore,
-  hasMore = true,
-}: locationVehiclesProps) {
-  const [data, setData] = useState<LocationVehicles[]>(
-    locatedVehicles
-  );
-  const [ref, inView] = useInView({
-    threshold: 0.1,
-    triggerOnce: false,
-  });
+export function VehiclesinLocationLDataTables() {
+  const { data, lastResponseCount, perPage, appendData } = useLocationVehiclesStore();
+  const mutation = useLocationVehiclesMutation();
+    console.log("elementos atualizando")
+  console.log({
+    data,
+    lastResponseCount,
+    perPage
+  })
+  const [ref, inView] = useInView({threshold: 0.8 });
   const [sorting, setSorting] = useState<SortingState>([]);
-  useEffect(() => {
-    if (inView && hasMore && onLoadMore) {
-      onLoadMore();
-    }
-  }, [inView, hasMore, onLoadMore]);
-
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
+  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
+  const [rowSelection, setRowSelection] = useState({});
   const columns: ColumnDef<LocationVehicles>[] = [
     {
       accessorKey: "plate",
@@ -129,9 +120,6 @@ export function VehiclesinLocationLDataTables({
       ),
     },
   ];
-  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
-  const [rowSelection, setRowSelection] = useState({});
-
   const table = useReactTable({
     data,
     columns,
@@ -150,30 +138,49 @@ export function VehiclesinLocationLDataTables({
     },
   });
 
-  const switchLabelName = (id: string) => {
-    switch (id) {
-      case "plate":
-        return "Placa";
-      case "fleet":
-        return "frota";
-      case "type":
-        return "tipo";
-      case "model":
-        return "modelo";
-      case "nameOwner":
-        return "Locado por";
-      case "status":
-        return "status";
-      case "name":
-        return "modelo";
+  // useEffect(() => {
+  //   if (inView && lastResponseCount === data.length && !mutation.isPending && canLoad) {
+  //     setCanLoad(false); // Bloqueia carregamentos sucessivos
+  //     mutation.mutate({
+  //       page: 1,
+  //       perPage: Math.floor(data.length / 10) + 1,
+  //     });
 
-      case "ignition":
-        return "status";
-      default:
-        return id;
-    }
+  //     // Define um delay para reativar o carregamento
+  //     const timeout = setTimeout(() => {
+  //       setCanLoad(true);
+  //     }, 1000); // 1000ms = 1 segundo de delay
+
+  //     return () => clearTimeout(timeout);
+  //   }
+  // }, [inView, lastResponseCount, mutation.isPending, data.length, canLoad]);
+useEffect(() => {
+  if (inView && !mutation.isPending) {
+    const timer = setTimeout(() => {
+      mutation.mutate({
+        page: 1,
+        perPage: Math.floor(data.length / 10) + 1,
+      });
+    }, 500);
+
+    return () => clearTimeout(timer); 
+  }
+}, [inView, mutation.isPending, mutation.mutate]);
+
+ const getColumnLabel = (id: string) => {
+    const labels: Record<string, string> = {
+      plate: "Placa",
+      fleet: "Frota",
+      type: "Tipo",
+      model: "Modelo",
+      nameOwner: "Locado por",
+      status: "Status",
+      name: "Modelo",
+      ignition: "Status"
+    };
+    return labels[id] || id;
   };
-  console.log("table lenght", table.getRowModel().rows?.length)
+
   return (
     <div className="w-full">
       <div className="flex items-center py-4">
@@ -205,14 +212,14 @@ export function VehiclesinLocationLDataTables({
                       column.toggleVisibility(!!value)
                     }
                   >
-                    {switchLabelName(column.id)}
+                    {getColumnLabel(column.id)}
                   </DropdownMenuCheckboxItem>
                 );
               })}
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
-      <div className="rounded-md border max-h-[600px] overflow-y-auto">
+      <div className="rounded-md border max-h-[600px] overflow-y-scroll">
         <Table>
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
@@ -244,36 +251,33 @@ export function VehiclesinLocationLDataTables({
                     ))}
                   </TableRow>
                 ))}
-                <TableRow ref={ref}>
-                  <TableCell
-                    colSpan={columns.length}
-                    className="text-center py-4"
-                  >
-                    {hasMore ? (
-                      <div className="inline-flex items-center">
-                        <svg
-                          className="animate-spin -ml-1 mr-2 h-4 w-4"
-                          xmlns="http://www.w3.org/2000/svg"
-                          fill="none"
-                          viewBox="0 0 24 24"
-                        >
-                         <Loader2></Loader2>
-                        </svg>
-                        Carregando mais veículos...
-                      </div>
-                    ) : (
-                      "Todos os veículos foram carregados"
-                    )}
-                  </TableCell>
-                </TableRow>
+               { (
+                  <TableRow ref={ref}>
+                    <TableCell colSpan={columns.length} className="text-center py-4">
+                      {mutation.isPending ? (
+                        <div className="inline-flex items-center">
+                          <Loader2 className="animate-spin h-4 w-4 mr-2" />
+                          Carregando lista...
+                        </div>
+                      ) : (
+                        "Role para carregar mais"
+                      )}
+                    </TableCell>
+                  </TableRow>
+                )}
               </>
             ) : (
-              <TableRow>
-                <TableCell
-                  colSpan={columns.length}
-                  className="h-24 text-center"
-                >
-                  No results.
+             <TableRow>
+                <TableCell colSpan={columns.length} className="h-24 text-center">
+                  {mutation.isPending ? (
+                    <Loader2 className="animate-spin h-6 w-6 mx-auto" />
+                  ) : (
+                   <div className="inline-flex items-center">
+                          <Loader2 className="animate-spin h-4 w-4 mr-2" />
+                          Carregando lista...
+                        </div>
+                     
+                  )}
                 </TableCell>
               </TableRow>
             )}
