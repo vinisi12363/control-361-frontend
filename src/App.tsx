@@ -1,15 +1,12 @@
-import MainContainer from './components/Containers/MainContainer'
 import Page from './pages/vehicles'
-import { ThemeProvider } from './components/providers/theme-provider'
+import { GlobalProviders } from './components/providers/globalProvider'
 
 function App() {
 
   return (
-    <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
-      <MainContainer>
+      <GlobalProviders>
         <Page/>
-      </MainContainer>
-   </ThemeProvider>
+      </GlobalProviders>
   )
 }
 
