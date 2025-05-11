@@ -3,15 +3,15 @@ import {
   flexRender,
   getCoreRowModel,
   getFilteredRowModel,
-  getPaginationRowModel,
   getSortedRowModel,
   useReactTable,
   type ColumnDef,
   type ColumnFiltersState,
+  type Row,
   type SortingState,
   type VisibilityState,
 } from "@tanstack/react-table";
-import { ArrowUpDown, ChevronDown, Loader, Loader2 } from "lucide-react";
+import { ArrowUpDown, ChevronDown, Loader2 } from "lucide-react";
 import { Button } from "../../../../components/ui/button";
 import {
   DropdownMenu,
@@ -32,13 +32,11 @@ import type { LocationVehicles } from "../../../../types/types";
 import { useInView } from "react-intersection-observer";
 import { useLocationVehiclesStore } from "../../../../store/useLocationVehiclesStore";
 import { useLocationVehiclesMutation } from "../../../../hooks/useLocationVehiclesMutation";
-import { ScrollArea } from "@radix-ui/react-scroll-area";
-import { ScrollBar } from "../../../../components/ui/scroll-area";
 
 export function VehiclesinLocationLDataTables() {
   const { data, lastResponseCount, perPage, appendData } = useLocationVehiclesStore();
   const mutation = useLocationVehiclesMutation();
-
+  const [globalFilter , setGlobalFilter] = useState("");
   const [ref, inView] = useInView({threshold: 0.7 });
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
@@ -127,8 +125,19 @@ export function VehiclesinLocationLDataTables() {
     getFilteredRowModel: getFilteredRowModel(),
     onColumnVisibilityChange: setColumnVisibility,
     onRowSelectionChange: setRowSelection,
+   globalFilterFn: (
+         row: Row<LocationVehicles>,
+         filterValue: string
+       ): boolean => {
+         const plate = row.original.plate?.toLowerCase() ?? "";
+         const fleet = row.original.fleet?.toLowerCase() ?? "";
+         const filter = filterValue.toLowerCase();
+   
+         return plate.includes(filter) || fleet.includes(filter);
+       },
     state: {
       sorting,
+      globalFilter,
       columnFilters,
       columnVisibility,
       rowSelection,
@@ -142,7 +151,7 @@ useEffect(() => {
         page: 1,
         perPage: Math.floor(data.length / 10) + 1,
       });
-    }, 500);
+    }, 250);
 
     return () => clearTimeout(timer); 
   }
@@ -168,10 +177,8 @@ useEffect(() => {
         <div className="flex items-center py-4">
           <Input
             placeholder="Filtrar por placa ou Frota"
-            value={(table.getColumn("plate")?.getFilterValue() as string) ?? ""}
-            onChange={(event) =>
-              table.getColumn("plate")?.setFilterValue(event.target.value)
-            }
+            value={globalFilter}
+            onChange={(event) => setGlobalFilter(event.target.value)}
             className="max-w-sm"
           />
           <DropdownMenu>
@@ -205,7 +212,7 @@ useEffect(() => {
           <Table>
             <TableHeader>
               {table.getHeaderGroups().map((headerGroup) => (
-                <TableRow key={headerGroup.id}>
+                <TableRow  className="border border-gray-700 dark:border-gray-400/40 " key={headerGroup.id}>
                   {headerGroup.headers.map((header) => {
                     return (
                       <TableHead key={header.id}>
@@ -225,9 +232,9 @@ useEffect(() => {
               {table.getRowModel().rows?.length ? (
                 <>
                   {table.getRowModel().rows.map((row) => (
-                    <TableRow key={row.id} data-state={row.getIsSelected() && "selected"}>
+                    <TableRow className="border border-gray-700 dark:border-gray-400/40 " key={row.id} data-state={row.getIsSelected() && "selected"}>
                       {row.getVisibleCells().map((cell) => (
-                        <TableCell key={cell.id}>
+                        <TableCell className="border border-gray-600 dark:border-gray-400/40 " key={cell.id}>
                           {flexRender(cell.column.columnDef.cell, cell.getContext())}
                         </TableCell>
                       ))}

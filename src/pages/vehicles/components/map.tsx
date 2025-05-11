@@ -31,8 +31,6 @@ export default function VehicleMap () {
     googleMapsApiKey: `${env.VITE_GOOGLE_API_KEY}`,
   });
   const {data:locatedVehicles} = useLocationVehiclesStore();
-  console.log('dentro do map')
-  console.log(locatedVehicles)
   const [vehicleIcons, setVehicleIcons] = useState<VehicleIcon[]>([]);
   const [selectedVehicle, setSelectedVehicle] =
     useState<LocationVehicles | null>(null);
@@ -82,6 +80,7 @@ export default function VehicleMap () {
     >
       {locatedVehicles.map((vehicle, index) => (
         <Marker
+          key={index}
           position={{ lat: vehicle.lat, lng: vehicle.lng }}
           icon={{
             url: vehicleIcons[index]?.svgBase64,

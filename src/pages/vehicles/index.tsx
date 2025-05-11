@@ -1,4 +1,3 @@
-import Header from "./components/header";
 import Searchlist from "./components/search";
 import { VehiclesinLocationLDataTables } from "./components/dataTables/vehicles-inlocation-datatable";
 import { useQuery } from "@tanstack/react-query";
@@ -8,8 +7,6 @@ import { useEffect, useState } from "react";
 import { VehiclesOthersLDataTables } from "./components/dataTables/vehicle-others-datatable";
 import { AnimatePresence, motion } from "framer-motion";
 import VehicleMap from "./components/map";
-import { useDebounce } from "use-debounce";
-import { useDebounceCallback } from "usehooks-ts";
 import { useLocationVehiclesStore } from "../../store/useLocationVehiclesStore";
 import { toast } from "sonner";
 import { useVehiclesStore } from "../../store/useVehiclesStore";
@@ -18,11 +15,10 @@ export default function Page() {
   const [filterValue, setFilterValue] = useState<"rastreados" | "outros">(
     "rastreados"
   );
-  const [searchTerm, setSearchTerm] = useState("");
-  // const [debouncedSearchTerm] = useDebounce(searchTerm, 300); //TODO  usar isso aqui para gerenciar as placas e  frotas
+ 
   const { data, perPage, hydrate } =
     useLocationVehiclesStore();
-  const {data: vehicleData , hydrate: hydrateVehicle} =
+  const { hydrate: hydrateVehicle} =
     useVehiclesStore();
   const { data: vehiclesResponse, isFetching } = useQuery({
     queryKey: ["vehicles", perPage],
@@ -53,7 +49,6 @@ export default function Page() {
   return (
     <AnimatePresence mode="popLayout">
       <div className="flex flex-col items-center gap-4">
-        <Header />
         <div className="flex flex-col w-3xl items-center gap-8">
           <Searchlist
             filter={filterValue}
@@ -64,7 +59,6 @@ export default function Page() {
                 setFilterValue(value);
               }
             }}
-            onSearch={setSearchTerm}
           />
 
           <motion.div
