@@ -1,4 +1,4 @@
-import Searchlist from "./components/search";
+import Searchlist from "./components/header";
 import { VehiclesinLocationLDataTables } from "./components/dataTables/vehicles-inlocation-datatable";
 import { useQuery } from "@tanstack/react-query";
 import { api } from "../../lib/api/api";
