@@ -50,7 +50,6 @@ export function VehiclesOthersLDataTables() {
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
   const [globalFilter, setGlobalFilter] = useState("");
   const [rowSelection, setRowSelection] = useState({});
-  console.log(globalFilter)
   const columns: ColumnDef<Vehicle>[] = [
     {
       accessorKey: "plate",
