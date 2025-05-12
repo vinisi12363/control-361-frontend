@@ -1,0 +1,32 @@
+name: CI
+
+on:
+   pull_request:
+    branches:
+      - main
+      - develop
+    types: [opened, synchronize, reopened]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: pegando código
+        uses: actions/checkout@v3
+
+      - name: Instalar Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 22.14
+
+      - name: dependency install
+        run: npm install
+
+      - name: run Lint
+        run: npm run lint
+        
+      - name: Rodar build
+        run: npm run build
+
+    
