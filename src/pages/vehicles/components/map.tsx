@@ -40,11 +40,12 @@ export default function VehicleMap() {
   useEffect(() => {
     if (isLoaded && locatedVehicles) {
       const icons = locatedVehicles.map((vehicle, index: number) => {
-        console.log(vehicle)
+    
         const svgCar = ReactDOMServer.renderToStaticMarkup(
           <IconMaker
             fillColor={CAR_ICON_COLORS[index % CAR_ICON_COLORS.length]}
             icon="/icons/car.svg"
+            alt ={vehicle.plate}
           />
         );
         return {

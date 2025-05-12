@@ -235,11 +235,10 @@ export function VehiclesOthersLDataTables() {
     onRowSelectionChange: setRowSelection,
     globalFilterFn: (
       row: Row<Vehicle>,
-      filterValue: string
     ): boolean => {
       const plate = row.original.plate?.toLowerCase() ?? "";
       const fleet = row.original.fleet?.toLowerCase() ?? "";
-      const filter = filterValue.toLowerCase();
+      const filter = globalFilter.toLowerCase();
 
       return plate.includes(filter) || fleet.includes(filter);
     },

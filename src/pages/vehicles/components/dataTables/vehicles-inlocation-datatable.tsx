@@ -60,7 +60,7 @@ export function VehiclesinLocationLDataTables() {
         <div className="uppercase px-4">{row.getValue("plate")}</div>
       ),
     },
-
+   
     {
       accessorKey: "fleet",
       header: ({ column }) => {
@@ -127,11 +127,10 @@ export function VehiclesinLocationLDataTables() {
     onRowSelectionChange: setRowSelection,
    globalFilterFn: (
          row: Row<LocationVehicles>,
-         filterValue: string
        ): boolean => {
          const plate = row.original.plate?.toLowerCase() ?? "";
          const fleet = row.original.fleet?.toLowerCase() ?? "";
-         const filter = filterValue.toLowerCase();
+         const filter = globalFilter.toLowerCase();
    
          return plate.includes(filter) || fleet.includes(filter);
        },

@@ -1,6 +1,7 @@
 interface IconMakerProps {
   fillColor: string;
   icon: React.ReactNode;
+  alt: string;
 }
 
 export default function IconMaker({ fillColor}: IconMakerProps) {
