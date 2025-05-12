@@ -50,6 +50,7 @@ export function VehiclesOthersLDataTables() {
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
   const [globalFilter, setGlobalFilter] = useState("");
   const [rowSelection, setRowSelection] = useState({});
+  console.log(globalFilter)
   const columns: ColumnDef<Vehicle>[] = [
     {
       accessorKey: "plate",
@@ -235,11 +236,10 @@ export function VehiclesOthersLDataTables() {
     onRowSelectionChange: setRowSelection,
     globalFilterFn: (
       row: Row<Vehicle>,
-      filterValue: string
     ): boolean => {
       const plate = row.original.plate?.toLowerCase() ?? "";
       const fleet = row.original.fleet?.toLowerCase() ?? "";
-      const filter = filterValue.toLowerCase();
+      const filter = globalFilter.toLowerCase();
 
       return plate.includes(filter) || fleet.includes(filter);
     },
