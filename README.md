@@ -1,54 +1,69 @@
-# React + TypeScript + Vite
+# Desafio Técnico Control 361 (Frontend)
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+###### O Desafio Consiste em uma listagem de Veículos além de uma visualização dos veículos rastreados no Maps, incluindo filtragem e seleção da listagem.
 
-Currently, two official plugins are available:
+<br>
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## Tencnologias utilizadas
 
-## Expanding the ESLint configuration
+#### Listarei as principais ferramentas que foram utilizadas  para ajudar na realização do desafio abaixo: 
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
 
-```js
-export default tseslint.config({
-  extends: [
-    // Remove ...tseslint.configs.recommended and replace with this
-    ...tseslint.configs.recommendedTypeChecked,
-    // Alternatively, use this for stricter rules
-    ...tseslint.configs.strictTypeChecked,
-    // Optionally, add this for stylistic rules
-    ...tseslint.configs.stylisticTypeChecked,
-  ],
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
+- React JS
+- Tailwind CSS
+- Zustand
+- Shadncn/ui
+- Biome
+- TanStack Query
+- TanStack Table 
+- Nest JS (Backend)
+
+
+#### Para ter acesso ao desafio clique no link abaixo: 
+
+- [control-361-frontend.vercel.app/](https://control-361-frontend.vercel.app/)
+
+#### Fique a vontade para dar uma olhada no funcionamento geral clicando abaixo:
+
+[Apresentação do sistema](https://www.loom.com/share/9c2578ffa43c4632a6ffb25a5faa0870?sid=9ba76f9c-be93-413b-bb68-6cf275b54f48)
+
+
+
+### Para executar o desafio localmente:
+
+Após efetuar o clone do respoitório em sua máquina, dentro da pasta execute os comandos abaixo:
+
+<br>
+
+1- crie um arquivo ``.env`` contendo o seguinte: 
+
+```env
+
+VITE_API_URL=https://control-361-backend.onrender.com
+
+VITE_API_KEY=c502848096dd898ae59f904fad810c2b3a61ef0f001294f12559e79159c0a5997926789790bd20153fe2428ccf84abfd475f544278f3c4afad054e72a359f8b7
+
+VITE_GOOGLE_API_KEY=AIzaSyDa3P9cV_tMnHi3syszloSBjMK89BDYtvs
+
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+2- execute a sequencia de comandos abaixo:
 
 ```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default tseslint.config({
-  plugins: {
-    // Add the react-x and react-dom plugins
-    'react-x': reactX,
-    'react-dom': reactDom,
-  },
-  rules: {
-    // other rules...
-    // Enable its recommended typescript rules
-    ...reactX.configs['recommended-typescript'].rules,
-    ...reactDom.configs.recommended.rules,
-  },
-})
+npm install 
 ```
+```js
+npx biome init
+```
+```js
+npm run dev
+```
+
+3- pronto, seu projeto está instalado e executando localmente. 🎉
+
+#### para acessar o repositório do backend acesse: 
+
+
+[Backend repo](https://github.com/vinisi12363/control-361-backend)
+
+
