@@ -12,13 +12,12 @@ import IconMaker from "../../../components/IconMaker";
 import { useLocationVehiclesStore } from "../../../store/useLocationVehiclesStore";
 import { CAR_ICON_COLORS } from "../../../lib/constants";
 import { Loader2 } from "lucide-react";
-import { useIsMobile } from "../../../hooks/use-mobile";
-
 
 const center = {
   lat: -22.5497146,
   lng: -48.8173376,
 };
+
 interface VehicleIcon {
   svgBase64: string;
 }
@@ -27,6 +26,7 @@ export default function VehicleMap() {
   const { isLoaded } = useJsApiLoader({
     googleMapsApiKey: `${env.VITE_GOOGLE_API_KEY}`,
   });
+
   const { data: locatedVehicles } = useLocationVehiclesStore();
   const [vehicleIcons, setVehicleIcons] = useState<VehicleIcon[]>([]);
   const [selectedVehicle, setSelectedVehicle] =
@@ -36,7 +36,7 @@ export default function VehicleMap() {
   const onLoad = useCallback((map: google.maps.Map) => {
     mapRef.current = map;
   }, []);
-  const isMobile = useIsMobile();
+
   useEffect(() => {
     if (isLoaded && locatedVehicles) {
       const icons = locatedVehicles.map((vehicle, index: number) => {
@@ -59,7 +59,7 @@ export default function VehicleMap() {
 
   if (!isLoaded || vehicleIcons.length === 0) {
     return (
-      <div className="flex  w-full h-full items-center justify-center">
+      <div className="flex w-full h-full items-center justify-center">
         <Loader2 className="animate-spin h-4 w-4 mr-2" />
         <p>Carregando Mapa...</p>
       </div>
@@ -68,9 +68,13 @@ export default function VehicleMap() {
 
   return (
     <GoogleMap
-      mapContainerStyle={isMobile ? { width: "98%", height: "600px", borderRadius: "10px" } : { width: "100%", height: "360px", borderRadius: "10px" }}
-      center={isMobile ?{ lat: locatedVehicles[1].lat, lng: locatedVehicles[1].lng } : center }
-      zoom={isMobile ? 30 : 5}
+      mapContainerClassName="w-full rounded-lg h-[250px] md:h-[300px] lg:h-[360px]"
+      center={
+        locatedVehicles[1]
+          ? { lat: locatedVehicles[1].lat, lng: locatedVehicles[1].lng }
+          : center
+      }
+      zoom={7}
       onLoad={onLoad}
     >
       {locatedVehicles.map((vehicle, index) => (
@@ -98,8 +102,7 @@ export default function VehicleMap() {
             <p>
               <strong>Frota:</strong> {selectedVehicle.fleet ?? "N/A"}
             </p>
-            <p> {new Date(selectedVehicle.createdAt).toLocaleString()}</p>
-
+            <p>{new Date(selectedVehicle.createdAt).toLocaleString()}</p>
             <p className="underline decoration-2">{`${selectedVehicle.lat.toFixed(
               6
             )}, ${selectedVehicle.lng.toFixed(6)}`}</p>
