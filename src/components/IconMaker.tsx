@@ -3,7 +3,7 @@ interface IconMakerProps {
   icon: React.ReactNode;
 }
 
-export default function IconMaker({ fillColor, icon }: IconMakerProps) {
+export default function IconMaker({ fillColor}: IconMakerProps) {
   return (
     <svg
       width="50"

@@ -14,10 +14,6 @@ import { CAR_ICON_COLORS } from "../../../lib/constants";
 import { Loader2 } from "lucide-react";
 import { useIsMobile } from "../../../hooks/use-mobile";
 
-const containerStyle = {
-  width: "100%",
-  height: "360px",
-};
 
 const center = {
   lat: -22.5497146,
@@ -43,7 +39,8 @@ export default function VehicleMap() {
   const isMobile = useIsMobile();
   useEffect(() => {
     if (isLoaded && locatedVehicles) {
-      const icons = locatedVehicles.map((vehicle, index) => {
+      const icons = locatedVehicles.map((vehicle, index: number) => {
+        console.log(vehicle)
         const svgCar = ReactDOMServer.renderToStaticMarkup(
           <IconMaker
             fillColor={CAR_ICON_COLORS[index % CAR_ICON_COLORS.length]}

@@ -34,7 +34,7 @@ import { useLocationVehiclesStore } from "../../../../store/useLocationVehiclesS
 import { useLocationVehiclesMutation } from "../../../../hooks/useLocationVehiclesMutation";
 
 export function VehiclesinLocationLDataTables() {
-  const { data, lastResponseCount, perPage, appendData } = useLocationVehiclesStore();
+  const { data  } = useLocationVehiclesStore();
   const mutation = useLocationVehiclesMutation();
   const [globalFilter , setGlobalFilter] = useState("");
   const [ref, inView] = useInView({threshold: 0.7 });
