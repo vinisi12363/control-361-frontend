@@ -14,8 +14,8 @@ export const useLocationVehiclesStore = create<LocationVehiclesPagination>((set)
   data: [],
   perPage:8,
   lastResponseCount: 0,
-  hydrate: (newData , count)=> set({data: newData , lastResponseCount:newData.length}),
-  appendData: (newData, count) => set(state => ({ 
+  hydrate: (newData )=> set({data: newData , lastResponseCount:newData.length}),
+  appendData: (newData) => set(state => ({ 
   data: [...state.data, ...newData],
   lastResponseCount: newData.length,
   perPage: newData.length

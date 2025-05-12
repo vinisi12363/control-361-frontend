@@ -12,11 +12,8 @@ import IconMaker from "../../../components/IconMaker";
 import { useLocationVehiclesStore } from "../../../store/useLocationVehiclesStore";
 import { CAR_ICON_COLORS } from "../../../lib/constants";
 import { Loader2 } from "lucide-react";
+import { useIsMobile } from "../../../hooks/use-mobile";
 
-const containerStyle = {
-  width: "100%",
-  height: "360px",
-};
 
 const center = {
   lat: -22.5497146,
@@ -26,13 +23,11 @@ interface VehicleIcon {
   svgBase64: string;
 }
 
-export default function VehicleMap () {
+export default function VehicleMap() {
   const { isLoaded } = useJsApiLoader({
     googleMapsApiKey: `${env.VITE_GOOGLE_API_KEY}`,
   });
-  const {data:locatedVehicles} = useLocationVehiclesStore();
-  console.log('dentro do map')
-  console.log(locatedVehicles)
+  const { data: locatedVehicles } = useLocationVehiclesStore();
   const [vehicleIcons, setVehicleIcons] = useState<VehicleIcon[]>([]);
   const [selectedVehicle, setSelectedVehicle] =
     useState<LocationVehicles | null>(null);
@@ -41,10 +36,11 @@ export default function VehicleMap () {
   const onLoad = useCallback((map: google.maps.Map) => {
     mapRef.current = map;
   }, []);
-
+  const isMobile = useIsMobile();
   useEffect(() => {
     if (isLoaded && locatedVehicles) {
-      const icons = locatedVehicles.map((vehicle, index) => {
+      const icons = locatedVehicles.map((vehicle, index: number) => {
+        console.log(vehicle)
         const svgCar = ReactDOMServer.renderToStaticMarkup(
           <IconMaker
             fillColor={CAR_ICON_COLORS[index % CAR_ICON_COLORS.length]}
@@ -61,27 +57,25 @@ export default function VehicleMap () {
     }
   }, [isLoaded, locatedVehicles]);
 
-  if (!isLoaded || vehicleIcons.length === 0){
-          return(
-                     <div className="flex  w-full h-full items-center justify-center">
-                          <Loader2 className="animate-spin h-4 w-4 mr-2" />
-                          <p>Carregando Mapa...</p>
-                        </div>
-        ) 
-   
-                     
+  if (!isLoaded || vehicleIcons.length === 0) {
+    return (
+      <div className="flex  w-full h-full items-center justify-center">
+        <Loader2 className="animate-spin h-4 w-4 mr-2" />
+        <p>Carregando Mapa...</p>
+      </div>
+    );
   }
-  
- 
+
   return (
     <GoogleMap
-      mapContainerStyle={containerStyle}
-      center={center}
-      zoom={5}
+      mapContainerStyle={isMobile ? { width: "98%", height: "600px", borderRadius: "10px" } : { width: "100%", height: "360px", borderRadius: "10px" }}
+      center={isMobile ?{ lat: locatedVehicles[1].lat, lng: locatedVehicles[1].lng } : center }
+      zoom={isMobile ? 30 : 5}
       onLoad={onLoad}
     >
       {locatedVehicles.map((vehicle, index) => (
         <Marker
+          key={index}
           position={{ lat: vehicle.lat, lng: vehicle.lng }}
           icon={{
             url: vehicleIcons[index]?.svgBase64,
@@ -114,5 +108,4 @@ export default function VehicleMap () {
       )}
     </GoogleMap>
   );
-};
-
+}

@@ -3,17 +3,20 @@ import {
   flexRender,
   getCoreRowModel,
   getFilteredRowModel,
-  getPaginationRowModel,
   getSortedRowModel,
   useReactTable,
   type ColumnDef,
   type ColumnFiltersState,
-  type GlobalFilterTableState,
   type Row,
   type SortingState,
   type VisibilityState,
 } from "@tanstack/react-table";
-import { ArrowUpDown, ChevronDown, Loader2, MoreHorizontal } from "lucide-react";
+import {
+  ArrowUpDown,
+  ChevronDown,
+  Loader2,
+  MoreHorizontal,
+} from "lucide-react";
 import { Button } from "../../../../components/ui/button";
 import {
   DropdownMenu,
@@ -36,20 +39,16 @@ import {
 import type { Vehicle } from "../../../../types/types";
 import { useVehiclesStore } from "../../../../store/useVehiclesStore";
 import { useVehiclesMutation } from "../../../../hooks/useVehiclesMutation";
-import { InView, useInView } from "react-intersection-observer";
+import { useInView } from "react-intersection-observer";
 
-interface VehicleProps {
-  searchFilter?:string
-}
-
-export function VehiclesOthersLDataTables({searchFilter}:VehicleProps) {
+export function VehiclesOthersLDataTables() {
   const { data } = useVehiclesStore();
   const mutation = useVehiclesMutation();
   const [ref, inView] = useInView({ threshold: 0.7 });
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
-  const [globalFilter , setGlobalFilter] = useState(searchFilter);
+  const [globalFilter, setGlobalFilter] = useState("");
   const [rowSelection, setRowSelection] = useState({});
   const columns: ColumnDef<Vehicle>[] = [
     {
@@ -84,7 +83,11 @@ export function VehiclesOthersLDataTables({searchFilter}:VehicleProps) {
         );
       },
       cell: ({ row }) => (
-        <div className="flex capitalize  px-4">{!row.getValue("fleet") || row.getValue("fleet") === 'string' ? 'Sem frota' : row.getValue("fleet")}</div>
+        <div className="flex capitalize  px-4">
+          {!row.getValue("fleet") || row.getValue("fleet") === "string"
+            ? "Sem frota"
+            : row.getValue("fleet")}
+        </div>
       ),
     },
 
@@ -230,12 +233,15 @@ export function VehiclesOthersLDataTables({searchFilter}:VehicleProps) {
     getFilteredRowModel: getFilteredRowModel(),
     onColumnVisibilityChange: setColumnVisibility,
     onRowSelectionChange: setRowSelection,
-    globalFilterFn:(row: Row<Vehicle>, columnId: string, filterValue: string):boolean=>{
-     const plate = row.original.plate?.toLowerCase() ?? "";
-  const fleet = row.original.fleet?.toLowerCase() ?? "";
-  const filter = filterValue.toLowerCase();
+    globalFilterFn: (
+      row: Row<Vehicle>,
+      filterValue: string
+    ): boolean => {
+      const plate = row.original.plate?.toLowerCase() ?? "";
+      const fleet = row.original.fleet?.toLowerCase() ?? "";
+      const filter = filterValue.toLowerCase();
 
-  return plate.includes(filter) || fleet.includes(filter);
+      return plate.includes(filter) || fleet.includes(filter);
     },
     state: {
       globalFilter,
@@ -245,19 +251,19 @@ export function VehiclesOthersLDataTables({searchFilter}:VehicleProps) {
       rowSelection,
     },
   });
-  useEffect(()=>{
-    if(inView && !mutation.isPending){
-        const timer = setTimeout(()=>{
-          mutation.mutate({
-            page: 1,
-            perPage: Math.floor(data.length / 10) + 1,
-          });
-        }, 500);
-        return ()=> clearTimeout(timer);
-      }
-  },[inView, mutation.isPending, mutation.mutate]);
-  
- const getColumnLabel = (id: string) => {
+  useEffect(() => {
+    if (inView && !mutation.isPending) {
+      const timer = setTimeout(() => {
+        mutation.mutate({
+          page: 1,
+          perPage: Math.floor(data.length / 10) + 1,
+        });
+      }, 500);
+      return () => clearTimeout(timer);
+    }
+  }, [inView, mutation.isPending, mutation.mutate]);
+
+  const getColumnLabel = (id: string) => {
     const labels: Record<string, string> = {
       plate: "Placa",
       type: "Tipo",
@@ -274,9 +280,7 @@ export function VehiclesOthersLDataTables({searchFilter}:VehicleProps) {
         <Input
           placeholder="Filtrar por placa ou Frota"
           value={globalFilter}
-          onChange={(event) =>
-            setGlobalFilter(event.target.value)
-          }
+          onChange={(event) => setGlobalFilter(event.target.value)}
           className="max-w-sm"
         />
         <DropdownMenu>
@@ -310,7 +314,10 @@ export function VehiclesOthersLDataTables({searchFilter}:VehicleProps) {
         <Table>
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
-              <TableRow key={headerGroup.id}>
+              <TableRow
+                className="border border-gray-700 dark:border-gray-400/40 "
+                key={headerGroup.id}
+              >
                 {headerGroup.headers.map((header) => {
                   return (
                     <TableHead key={header.id}>
@@ -328,45 +335,60 @@ export function VehiclesOthersLDataTables({searchFilter}:VehicleProps) {
           </TableHeader>
           <TableBody>
             {table.getRowModel().rows?.length ? (
-             <>
+              <>
                 {table.getRowModel().rows.map((row) => (
-                    <TableRow key={row.id} data-state={row.getIsSelected() && "selected"}>
-                      {row.getVisibleCells().map((cell) => (
-                        <TableCell key={cell.id}>
-                          {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                        </TableCell>
-                      ))}
-                    </TableRow>
-                  ))}
-                { (
-                    <TableRow ref={ref}>
-                      <TableCell colSpan={columns.length} className="text-center py-4">
-                        {mutation.isPending ? (
-                          <div className="inline-flex items-center">
-                            <Loader2 className="animate-spin h-4 w-4 mr-2" />
-                            Carregando lista...
-                          </div>
-                        ) : (
-                          "Role para carregar mais"
+                  <TableRow
+                    className="border border-gray-700 dark:border-gray-400/40 "
+                    key={row.id}
+                    data-state={row.getIsSelected() && "selected"}
+                  >
+                    {row.getVisibleCells().map((cell) => (
+                      <TableCell
+                        className="border border-gray-600 dark:border-gray-400/40 "
+                        key={cell.id}
+                      >
+                        {flexRender(
+                          cell.column.columnDef.cell,
+                          cell.getContext()
                         )}
                       </TableCell>
-                    </TableRow>
-                  )}
+                    ))}
+                  </TableRow>
+                ))}
+                {
+                  <TableRow ref={ref}>
+                    <TableCell
+                      colSpan={columns.length}
+                      className="text-center py-4"
+                    >
+                      {mutation.isPending ? (
+                        <div className="inline-flex items-center">
+                          <Loader2 className="animate-spin h-4 w-4 mr-2" />
+                          Carregando lista...
+                        </div>
+                      ) : (
+                        "Role para carregar mais"
+                      )}
+                    </TableCell>
+                  </TableRow>
+                }
               </>
             ) : (
-                <TableRow>
-                  <TableCell colSpan={columns.length} className="h-24 text-center">
-                    {mutation.isPending ? (
-                      <Loader2 className="animate-spin h-6 w-6 mx-auto" />
-                    ) : (
+              <TableRow>
+                <TableCell
+                  colSpan={columns.length}
+                  className="h-24 text-center"
+                >
+                  {mutation.isPending ? (
+                    <Loader2 className="animate-spin h-6 w-6 mx-auto" />
+                  ) : (
                     <div className="inline-flex items-center">
-                            <Loader2 className="animate-spin h-4 w-4 mr-2" />
-                            Carregando lista...
-                          </div>
-                      
-                    )}
-                  </TableCell>
-                </TableRow>
+                      <Loader2 className="animate-spin h-4 w-4 mr-2" />
+                      Carregando lista...
+                    </div>
+                  )}
+                </TableCell>
+              </TableRow>
             )}
           </TableBody>
         </Table>
