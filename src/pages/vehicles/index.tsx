@@ -10,18 +10,15 @@ import VehicleMap from "./components/map";
 import { useLocationVehiclesStore } from "../../store/useLocationVehiclesStore";
 import { toast } from "sonner";
 import { useVehiclesStore } from "../../store/useVehiclesStore";
-import { useIsMobile } from "../../hooks/use-mobile";
 
 export default function Page() {
   const [filterValue, setFilterValue] = useState<"rastreados" | "outros">(
     "rastreados"
   );
-  const { data, perPage, hydrate } =
-    useLocationVehiclesStore();
-  const { hydrate: hydrateVehicle} =
-    useVehiclesStore();
-  const isMobile = useIsMobile();
-  const { data: vehiclesResponse, isFetching } = useQuery({
+  const { data, perPage, hydrate } = useLocationVehiclesStore();
+  const { hydrate: hydrateVehicle } = useVehiclesStore();
+
+  const { data: vehiclesResponse } = useQuery({
     queryKey: ["vehicles", perPage],
     queryFn: async () => {
       const response = await api.get("/vehicles", {
@@ -34,6 +31,7 @@ export default function Page() {
       return response.data.data as VehiclesResponse;
     },
   });
+
   useEffect(() => {
     if (vehiclesResponse) {
       hydrate(
@@ -41,68 +39,16 @@ export default function Page() {
         vehiclesResponse?.content.locationVehicles.length
       );
       hydrateVehicle(
-          vehiclesResponse?.content.vehicles,
-          vehiclesResponse?.content.vehicles.length
-      )
+        vehiclesResponse?.content.vehicles,
+        vehiclesResponse?.content.vehicles.length
+      );
     }
-  }, [vehiclesResponse, isFetching]);
-  if (isMobile){
-      return (
-    <AnimatePresence mode="popLayout">
-      <div className="flex flex-col items-center gap-4 ">
-        <div className="flex flex-col items-center justify-center ">
-          <Searchlist
-            filter={filterValue}
-            onFilterChange={(value: string) => {
-              if (value === "outros")
-                toast.info("O Mapa mostra somente Veículos rastreados.");
-              if (value === "rastreados" || value === "outros") {
-                setFilterValue(value);
-              }
-            }}
-          />
+  }, [vehiclesResponse]);
 
-          <motion.div
-            key={filterValue}
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -10 }}
-            transition={{ duration: 0.3 }}
-            className="flex flex-col w-full items-centerjustify-center "
-          >
-            {filterValue === "rastreados" ? (
-              <>
-                <div className="bg-zinc-400/40 w-full h-auto p-4 rounded-lg">
-                  <VehicleMap />
-                </div>
-
-                <VehiclesOthersLDataTables
-                />
-              </>
-            ) : (
-              <div>
-                {data && (
-                  <>
-                    <div className={
-                     "h-auto w-[95vw] items-center justify-center space-y-1 p-4 bg-zinc-400/40  rounded-lg" 
-                    }>
-                      <VehicleMap />
-                    </div>
-                    <VehiclesinLocationLDataTables />
-                  </>
-                )}
-              </div>
-            )}
-          </motion.div>
-        </div>
-      </div>
-    </AnimatePresence>
-  );
-  } else {
-      return (
+  return (
     <AnimatePresence mode="popLayout">
       <div className="flex flex-col items-center gap-4">
-        <div className="flex flex-col w-3xl items-center gap-8">
+        <div className="flex flex-col w-full md:w-screen lg:max-w-6xl items-center gap-8">
           <Searchlist
             filter={filterValue}
             onFilterChange={(value: string) => {
@@ -124,23 +70,19 @@ export default function Page() {
           >
             {filterValue === "outros" ? (
               <>
-                <div className="bg-zinc-400/40 w-full h-[400px] space-y-1 p-4 rounded-lg">
+                <div className="w-full h-auto md:h-[400px] md:p-5  bg-zinc-400/40 space-y-1 lg:p-4 rounded-lg">
                   <VehicleMap />
                 </div>
-
-                <VehiclesOthersLDataTables
-                />
+                <VehiclesOthersLDataTables />
               </>
             ) : (
               <div>
                 {data && (
                   <>
-                    <div className={
-                      isMobile ? "h-auto w-screen items-center justify-center space-y-1 p-4 bg-zinc-400/40  rounded-lg" : 
-                      " space-y-1 p-4 bg-zinc-400/40  w-full h-[400px] rounded-lg"
-                    }>
+                    <div className="w-full h-auto md:h-[400px] md:p-5 bg-zinc-400/40 space-y-1 lg:p-4 rounded-lg mb-5 border-b-2 border-zinc-800">
                       <VehicleMap />
                     </div>
+
                     <VehiclesinLocationLDataTables />
                   </>
                 )}
@@ -151,6 +93,4 @@ export default function Page() {
       </div>
     </AnimatePresence>
   );
-  }
-
 }
